@@ -18,18 +18,23 @@
 // }import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+
 public class TreeTester {
     private Tree tree;
+    private ByteArrayOutputStream outputStream;
 
     @Before
     public void setUp() {
         tree = new Tree();
+        outputStream = new ByteArrayOutputStream();
     }
 
     @Test
@@ -40,8 +45,15 @@ public class TreeTester {
     }
 
     @Test
-    public void testRemove() {
-        // Test removing an entry from the tree
+    public void testCalculateSHA1() {
+        String input = "Hello, World!";
+        String expectedHash = "2ef7bde608ce5404e97d5f042f95f89f1c61f90e57";
+        String calculatedHash = tree.calculateSHA1(input);
+        assertEquals(expectedHash, calculatedHash);
+    }
+
+    @Test
+    public void testDelete() {
         tree.add("entry1");
         tree.add("entry2");
         tree.remove("entry1");
@@ -51,20 +63,30 @@ public class TreeTester {
 
     @Test
     public void testGenerateBlob() {
-        // Test generating a blob and checking if it exists
         tree.add("entry1");
         tree.generateBlob();
-        assertTrue(new File("objects").exists()); // Check if objects folder exists
+        assertTrue(new File("objects").exists());
         String sha1 = tree.calculateSHA1("entry1\n");
         String blobFileName = "objects" + File.separator + sha1;
-        assertTrue(new File(blobFileName).exists()); // Check if blob file exists
+        assertTrue(new File(blobFileName).exists());
     }
 
-    // You can write more test methods to cover other functionalities as needed
+    @Test
+    public void testPrintTree() {
+        tree.add("Entry 1");
+        tree.add("Entry 2");
+        tree.add("Entry 3");
+
+        tree.printTree();
+
+        String printedOutput = outputStream.toString().trim();
+        String expectedOutput = "Entry 1\nEntry 2\nEntry 3";
+
+        assertEquals(expectedOutput, printedOutput);
+    }
 
     @Test
-    public void testDelete() {
-        // Test deleting an entry from the tree
+    public void testRemove() {
         tree.add("entry1");
         tree.add("entry2");
         tree.delete("entry1");

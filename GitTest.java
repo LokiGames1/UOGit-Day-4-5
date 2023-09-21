@@ -23,7 +23,7 @@ public class GitTest {
         try {
             git.init();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
         assertTrue(new File("Git").exists());
