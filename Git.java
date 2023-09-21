@@ -1,17 +1,17 @@
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 
-public class Index {
+public class Git {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-        Index newIndex = new Index();
-        newIndex.init();
-        newIndex.add("testIndex.txt");
-        newIndex.delete("testIndex.txt");
+        Git newGit = new Git();
+        newGit.init();
+        newGit.add("testGit.txt");
+        newGit.delete("testGit.txt");
     }
 
     public void init() throws IOException {
-        File newFile = new File("index");
+        File newFile = new File("Git");
         if (!newFile.exists()) {
             newFile.createNewFile();
         }
@@ -29,7 +29,7 @@ public class Index {
             return;
         }
         delete(fileName);
-        FileWriter fileWriter = new FileWriter("index", true);
+        FileWriter fileWriter = new FileWriter("Git", true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         bufferedWriter.write(fileName + " : " + sha + '\n');
         bufferedWriter.close();
@@ -38,7 +38,7 @@ public class Index {
     }
 
     public void delete(String fileName) throws IOException, NoSuchAlgorithmException {
-        File ogFile = new File("index");
+        File ogFile = new File("Git");
         File temp = new File("temp.txt");
 
         BufferedReader br = new BufferedReader(new FileReader(ogFile));
@@ -70,7 +70,7 @@ public class Index {
     }
 
     public boolean existsAlready(String fileName, String hash) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader("index"));
+        BufferedReader br = new BufferedReader(new FileReader("Git"));
 
         String line;
         while (br.ready()) {

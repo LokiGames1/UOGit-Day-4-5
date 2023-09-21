@@ -84,4 +84,8 @@ public class Blob {
     public Path getToTextFile() {
         return toTextFile;
     }
+
+    public Object getFileContents() {
+        return fileContents;
+    }
 }
