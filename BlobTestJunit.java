@@ -16,7 +16,7 @@ public class BlobTestJunit {
 
     @BeforeEach
     public void setUp() throws IOException {
-        // Clear the Objects directory
+
         Path objectsFolder = Paths.get("Objects");
         if (Files.exists(objectsFolder)) {
             try (Stream<Path> paths = Files.walk(objectsFolder)) {
@@ -44,6 +44,9 @@ public class BlobTestJunit {
         String input = "hello";
         String actualSha = blob.doSha(input);
         assertEquals(expectedSha, actualSha);
+        // here we're testing whether or not the generate sha method works by
+        // knowing the actual sha for hello, and testing if the method generates
+        // the same sha hash. The method works.
     }
 
     @Test
@@ -51,12 +54,20 @@ public class BlobTestJunit {
         String expectedContents = "Test file content";
         String actualContents = (String) blob.getFileContents();
         assertEquals(expectedContents, actualContents);
+        // here we're getting some file content from a known file, and
+        // seeing if they match. In the set up I set test.txt to have
+        // "Test file content" as its contents, and the assertion works.
+        // Test passes
     }
 
     @Test
     void testGetShaName() {
-        String expectedSha = "3cddd3926cbb2787afc183c6da2b1d56161416af"; // Replace with the expected SHA-1 hash
+        String expectedSha = "3cddd3926cbb2787afc183c6da2b1d56161416af";
         assertEquals(expectedSha, blob.getShaName());
+        // I'm not entirely sure how this is different than the dosha
+        // method that Aidan also had, but i'm just checking if the
+        // expected sha for the test.txt file name is the same as what it
+        // gets. test passes
     }
 
     @Test
@@ -64,6 +75,8 @@ public class BlobTestJunit {
         Path expectedPath = Paths.get(testFileName);
         Path actualPath = blob.getToTextFile();
         assertEquals(expectedPath, actualPath);
+        // Here i'm using the Paths package to see the expected file path, and
+        // checking it with the method. Test passes
     }
 
     @Test
@@ -72,6 +85,8 @@ public class BlobTestJunit {
         byte[] expectedBytes = expectedContents.getBytes();
         byte[] actualBytes = blob.makeBite("file1.txt");
         assertArrayEquals(expectedBytes, actualBytes);
+        // Here i'm using the byte[] class to see if the makeBite method
+        // works. Test passes
     }
 
     @Test
@@ -83,6 +98,8 @@ public class BlobTestJunit {
         String expectedSha = blob.getShaName();
         Path expectedPath = Paths.get("Objects", expectedSha);
         assertTrue(Files.exists(expectedPath));
+        // here i'm checking if the make blob method works and it writes the
+        // blob to the objects folder. Test does not pass.
     }
 
     @Test
@@ -90,5 +107,7 @@ public class BlobTestJunit {
         String expectedContents = "File 1 content";
         String actualContents = blob.readText("file1.txt");
         assertEquals(expectedContents, actualContents);
+        // checking the known file1.txt content with the readText
+        // method. Test passes
     }
 }

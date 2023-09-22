@@ -37,6 +37,8 @@ public class GitTestJunit {
         }
         br.close();
         assertTrue(found);
+        // Asserting if there exists the line on the index file where the blob was
+        // added. Test does not pass.
     }
 
     @Test
@@ -57,6 +59,8 @@ public class GitTestJunit {
         }
         br.close();
         assertFalse(found);
+        // tests whether or not the delete method works by attempting to delete a file
+        // and checking to see if it's still there. Test does not pass
     }
 
     @Test
@@ -75,6 +79,8 @@ public class GitTestJunit {
         tempGitFile.delete();
 
         assertTrue(exists);
+        // Tested the ExistsAlready method in the index class by checking whether a file
+        // with the given fileName and hash already exists in a "Git" file. Test passes
     }
 
     @Test
@@ -87,5 +93,7 @@ public class GitTestJunit {
         }
         assertTrue(new File("Git").exists());
         assertTrue(new File("./objects").exists());
+        // tests init to make sure that initializing an index works and the file is
+        // there. Test passes
     }
 }

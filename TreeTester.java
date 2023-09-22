@@ -42,14 +42,17 @@ public class TreeTester {
         // Test adding an entry to the tree
         tree.add("entry1");
         assertTrue(tree.entries.contains("entry1"));
+        // Adds an entry to the tree and checks if it's there. Test passes
     }
 
     @Test
     public void testCalculateSHA1() {
         String input = "Hello, World!";
-        String expectedHash = "2ef7bde608ce5404e97d5f042f95f89f1c61f90e57";
+        String expectedHash = "a0a9f2a6772942557ab5355d76af442f8f65e01";
         String calculatedHash = tree.calculateSHA1(input);
         assertEquals(expectedHash, calculatedHash);
+        // Knows an expected hash for an input and checks the calculate Sha method. Test
+        // passes
     }
 
     @Test
@@ -59,6 +62,8 @@ public class TreeTester {
         tree.remove("entry1");
         assertFalse(tree.entries.contains("entry1"));
         assertTrue(tree.entries.contains("entry2"));
+        // attempts to remove an entry from the tree and checks if it's still there.
+        // Test passes
     }
 
     @Test
@@ -83,6 +88,8 @@ public class TreeTester {
         String expectedOutput = "Entry 1\nEntry 2\nEntry 3";
 
         assertEquals(expectedOutput, printedOutput);
+        // Prints out the contents of a tree and checks it with the expected value. Does
+        // not pass
     }
 
     @Test
@@ -92,5 +99,8 @@ public class TreeTester {
         tree.delete("entry1");
         assertFalse(tree.entries.contains("entry1"));
         assertTrue(tree.entries.contains("entry2"));
+        // I'm not sure what the remove method was as compared to the delete method in
+        // the Tree class, but I did a similar test to the delete method, and this one
+        // did not pass.
     }
 }
