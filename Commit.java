@@ -89,10 +89,8 @@ public class Commit {
     // Create a Tree and return its SHA1
     public static String createTree() throws NoSuchAlgorithmException, IOException {
         Tree tree = new Tree();
-        tree.add("file1.txt");
-        tree.add("file2.txt");
-        tree.generateBlob();
-        return tree.calculateSHA1("tree.txt");
+
+        return tree.getSHA("tree.txt");
     }
 
     public static String getDate() {

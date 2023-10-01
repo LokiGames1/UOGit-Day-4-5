@@ -1,105 +1,158 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigInteger;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Formatter;
 
 public class Tree {
-    public List<String> entries;
+    String sha;
+    File treeHoldingFile;
+    File treeFile;
+    ArrayList<String> list;
+
+    public static void main(String[] args) throws Exception {
+        Tree tree = new Tree();
+
+        tree.addDirectory("./objects/");
+        tree.writeToTree();
+    }
 
     public Tree() {
-        this.entries = new ArrayList<>();
+        treeHoldingFile = new File("treeHoldingFile");
+        list = new ArrayList<String>();
     }
 
-    public void add(String str) {
-        entries.add(str);
+    public String getSha() {
+        return sha;
     }
 
-    public void remove(String target) {
-        List<String> toRemove = new ArrayList<>();
-        for (String entry : entries) {
-            if (entry.equals(target) || entry.endsWith(" : " + target)) {
-                toRemove.add(entry);
-            }
+    public void add(String treeEntry) throws Exception {
+        String substring = "";
+        if (treeEntry.length() > 4) {
+            substring = treeEntry.substring(0, 4);
         }
-        entries.removeAll(toRemove);
-    }
-
-    public String calculateSHA1(String input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] messageDigest = md.digest(input.getBytes());
-            BigInteger no = new BigInteger(1, messageDigest);
-            String hashText = no.toString(16);
-            while (hashText.length() < 32) {
-                hashText = "0" + hashText;
-            }
-            return hashText;
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void printTree() {
-        for (String entry : entries) {
-            System.out.println(entry);
-        }
-    }
-
-    public void generateBlob() {
-        try {
-            String folderPath = "objects";
-            File objectsFolder = new File(folderPath);
-            if (!objectsFolder.exists()) {
-                objectsFolder.mkdir();
-            }
-
-            StringBuilder contentBuilder = new StringBuilder();
-            for (String entry : entries) {
-                contentBuilder.append(entry).append("\n");
-            }
-
-            String content = contentBuilder.toString();
-            String sha1 = calculateSHA1(content);
-            String blobFileName = folderPath + File.separator + sha1;
-
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(blobFileName))) {
-                writer.write(content);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void delete(String str) {
-        BufferedReader reader;
-        try {
-            reader = new BufferedReader(new FileReader("tree.txt"));
-            try {
-                while (reader.ready()) {
-                    if (reader.readLine().equals(str)) {
-
-                    }
+        if (substring.equals("tree")) {
+            String sha = treeEntry.substring(7, treeEntry.length());
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).contains(sha)) {
+                    throw new Exception("already containts that tree");
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        } else if (substring.equals("blob")) {
+            String shaFileName = treeEntry.substring(treeEntry.indexOf(":") + 2, treeEntry.length());
+            String fileName = shaFileName.substring(shaFileName.indexOf(":") + 2, shaFileName.length());
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).contains(fileName)) {
+                    throw new Exception("already containts that file");
+                }
+            }
+        }
+        list.add(treeEntry);
+    }
+
+    public void remove(String treeEntry) {
+        boolean removed = false;
+        for (int i = 0; i < list.size() && removed == false; i++) {
+            if (list.get(i).contains(treeEntry)) {
+                list.remove(i);
+                removed = true;
+            }
         }
     }
 
-    public String addDirectory(String directoryPath) {
+    public void writeToTree() throws IOException {
+        FileWriter writer = new FileWriter(treeHoldingFile);
+        for (int i = 0; i < list.size() - 1; i++) {
+            writer.write(list.get(i) + "\n");
+        }
+        writer.write(list.get(list.size() - 1));
+        writer.close();
+        String contents = getFileContents(treeHoldingFile);
+        String shaString = getSHA(contents);
+        if (treeFile != null && treeFile.exists()) {
+            treeFile.delete();
+        }
+        treeFile = new File("./objects/" + shaString);
+        FileWriter treeWriter = new FileWriter(treeFile);
+        treeWriter.write(contents);
+        treeWriter.close();
+    }
 
-        return "";
+    public String getFileContents(File file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(file.getPath()));
+        StringBuilder contents = new StringBuilder();
+        while (reader.ready()) {
+            contents.append((char) reader.read());
+        }
+        reader.close();
+        return contents.toString();
+    }
+
+    public String getSHA(String fileContents) {
+        String sha1 = "";
+        try {
+            MessageDigest crypt = MessageDigest.getInstance("SHA-1");
+            crypt.reset();
+            crypt.update(fileContents.getBytes("UTF-8"));
+            sha1 = byteToHex(crypt.digest());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        this.sha = sha1;
+        return sha1;
+    }
+
+    // Used for sha1
+    private static String byteToHex(final byte[] hash) {
+        Formatter formatter = new Formatter();
+        for (byte b : hash) {
+            formatter.format("%02x", b);
+        }
+        String result = formatter.toString();
+        formatter.close();
+        return result;
+    }
+
+    public String getListObject(int position) {
+        return list.get(position);
+    }
+
+    public String addDirectory(String directoryPath) throws Exception {
+        return addDirectory(directoryPath, false);
+
+    }
+
+    private String addDirectory(String directoryPath, boolean isRecursion) throws Exception {
+        File dir = new File(directoryPath);
+        if (!dir.isDirectory()) {
+            throw new Exception("shut yo bitch ass up");
+        }
+        File files[] = dir.listFiles();
+        if (files.length == 0) {
+            add("");
+        }
+        for (File file : files) {
+            if (file.isDirectory()) {
+                Tree tempTree = new Tree();
+                tempTree.addDirectory(file.getPath(), true);
+                add("tree : " + tempTree.getSha() + " : " + file.getName());
+            } else {
+                Blob b = new Blob(file.getPath());
+                add("blob : " + b.getShaName() + " : " + file.getName());
+            }
+        }
+
+        if (isRecursion) {
+            writeToTree();
+        }
+
+        return getSha();
     }
 }
